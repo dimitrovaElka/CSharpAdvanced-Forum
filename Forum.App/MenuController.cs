@@ -15,14 +15,6 @@
 		private ISession session;
 		private ICommandFactory commandFactory;
 
-		public MenuController(ILabelFactory labelFactory, IForumViewEngine viewEngine)
-		{
-			this.viewEngine = viewEngine;
-
-			// this.CurrentMenu = new MainMenu(null, labelFactory, null);
-			this.RenderCurrentView();
-		}
-
         public MenuController(IServiceProvider serviceProvider, IForumViewEngine viewEngine, ISession session, ICommandFactory commandFactory)
         {
             this.serviceProvider = serviceProvider;

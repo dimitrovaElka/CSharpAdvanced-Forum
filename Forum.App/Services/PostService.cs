@@ -4,6 +4,7 @@
     using Forum.Data;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text;
 
     public class PostService : IPostService
@@ -29,12 +30,21 @@
 
         public IEnumerable<ICategoryInfoViewModel> GetAllCategories()
         {
-            throw new NotImplementedException();
+            IEnumerable<ICategoryInfoViewModel> categories = this.forumData.Categories
+                .Select(c => new CategoryInfoViewModel(c.Id, c.Name, c.Posts.Count));
+
+            return categories;
         }
 
         public string GetCategoryName(int categoryId)
         {
-            throw new NotImplementedException();
+            string categoryName = this.forumData.Categories.FirstOrDefault(c => c.Id == categoryId).Name;
+            if (categoryName == null)
+            {
+                throw new ArgumentException($"Category with id {categoryId} not found!");
+            }
+
+            return categoryName;
         }
 
         public IEnumerable<IPostInfoViewModel> GetCategoryPostsInfo(int categoryId)

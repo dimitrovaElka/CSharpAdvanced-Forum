@@ -10,8 +10,19 @@
 		private bool error;
 
 		private ILabelFactory labelFactory;
+        private ICommandFactory commandFactory;
+        private ISession session;
+        private IUserService userService;
 
-		//TODO: Inject Dependencies
+        public LogInMenu(ILabelFactory labelFactory, ICommandFactory commandFactory, ISession session, IUserService userService)
+        {
+            this.labelFactory = labelFactory;
+            this.commandFactory = commandFactory;
+            this.session = session;
+            this.userService = userService;
+
+            this.Open();
+        }
 		
 		private string UsernameInput => this.Buttons[0].Text.TrimStart();
 
@@ -65,7 +76,10 @@
 
 		public override IMenu ExecuteCommand()
 		{
-			throw new System.NotImplementedException();
-		}
+            string commandName = string.Join("", this.CurrentOption.Text.Split());
+            ICommand command = this.commandFactory.CreateCommand(commandName);
+
+            return command.Execute(); 
+        }
 	}
 }

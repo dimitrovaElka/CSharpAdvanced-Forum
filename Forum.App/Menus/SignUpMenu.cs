@@ -11,10 +11,21 @@
 		private bool error;
 
 		private ILabelFactory labelFactory;
+        private ICommandFactory commandFactory;
+        private ISession session;
+        private IUserService userService;
 
-		//TODO: Inject Dependencies
-		
-		private string UsernameInput => this.Buttons[0].Text.TrimStart();
+        public SignUpMenu(ILabelFactory labelFactory, ICommandFactory commandFactory, ISession session, IUserService userService)
+        {
+            this.labelFactory = labelFactory;
+            this.commandFactory = commandFactory;
+            this.session = session;
+            this.userService = userService;
+
+            this.Open();
+        }
+
+        private string UsernameInput => this.Buttons[0].Text.TrimStart();
 
 		private string PasswordInput => this.Buttons[1].Text.TrimStart();
 

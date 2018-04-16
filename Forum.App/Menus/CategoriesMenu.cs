@@ -1,17 +1,30 @@
 ﻿namespace Forum.App.Menus
 {
-	using System.Linq;
-	using System.Collections.Generic;
+    using System.Linq;
+    using System.Collections.Generic;
 
-	using Contracts;
-	using Models;
+    using Contracts;
+    using Models;
+    using System;
 
-	public class CategoriesMenu : Menu, IPaginatedMenu
+    public class CategoriesMenu : Menu, IPaginatedMenu
 	{
 		private const int pageSize = 10;
 		private const int categoryNameLength = 36;
 
-		private ILabelFactory labelFactory;
+
+        private ILabelFactory labelFactory;
+        private IPostService postService;
+        private ICommandFactory commandFactory;
+
+        public CategoriesMenu(ILabelFactory labelFactory, IPostService postService, ICommandFactory commandFactory)
+        {
+            this.labelFactory = labelFactory;
+            this.postService = postService;
+            this.commandFactory = commandFactory;
+
+            this.Open();
+        }
 
 		private ICategoryInfoViewModel[] categories;
 		private int currentPage;
@@ -90,12 +103,41 @@
 
 		public override IMenu ExecuteCommand()
 		{
-			throw new System.NotImplementedException();
+            ICommand command = null;
+            int actualIndex = this.currentPage * pageSize + this.currentIndex;
+            string idString = null;
+
+            if (this.currentIndex > 0 && this.currentIndex <=10)
+            {
+                command = this.commandFactory.CreateCommand("ViewCategoryMenu");
+                idString = this.categories[actualIndex].Id.ToString();
+            }
+            else
+            {
+                string commandName = string.Join("", this.CurrentOption.Text.Split());
+                command = this.commandFactory.CreateCommand(commandName); 
+            }
+
+            
+            return command.Execute(idString);
 		}
 
 		public void ChangePage(bool forward = true)
 		{
-			throw new System.NotImplementedException();
+            this.currentPage += forward ? 1 : -1;
+            this.currentIndex = 0;
+            this.Open();
 		}
-	}
+
+        public override void Open()
+        {
+            this.LoadCategories();
+            base.Open();
+        }
+
+        private void LoadCategories()
+        {
+            this.categories = this.postService.GetAllCategories().ToArray();
+        }
+    }
 }
