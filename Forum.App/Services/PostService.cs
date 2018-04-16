@@ -1,5 +1,6 @@
-﻿namespace Forum.App.Contracts.Services
+﻿namespace Forum.App.Services
 {
+    using Forum.App.Contracts;
     using Forum.Data;
     using System;
     using System.Collections.Generic;

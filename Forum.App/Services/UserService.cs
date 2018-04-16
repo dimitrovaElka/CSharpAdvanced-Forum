@@ -1,10 +1,11 @@
-﻿namespace Forum.App.Contracts.Services
+﻿namespace Forum.App.Services
 {
     using System;
     using System.Collections.Generic;
     using System.Text;
     using Forum.Data;
     using Forum.DataModels;
+    using Forum.App.Contracts;
 
     public class UserService : IUserService
     {

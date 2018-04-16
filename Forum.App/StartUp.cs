@@ -8,7 +8,7 @@
 	using Factories;
     using Forum.App.Models;
     using Forum.Data;
-    using Forum.App.Contracts.Services;
+    using Forum.App.Services;
 
     public class StartUp
 	{
