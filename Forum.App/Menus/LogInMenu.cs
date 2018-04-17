@@ -2,39 +2,42 @@
 {
 	using Models;
     using Contracts;
+    using System;
 
     public class LogInMenu : Menu
     {
-		private const string errorMessage = "Invalid username or password!";
+        private string errorMessage = "";
 
-		private bool error;
+        private bool error;
 
-		private ILabelFactory labelFactory;
+        private ILabelFactory labelFactory;
         private ICommandFactory commandFactory;
         private ISession session;
         private IUserService userService;
+        private IForumReader forumReader;
 
-        public LogInMenu(ILabelFactory labelFactory, ICommandFactory commandFactory, ISession session, IUserService userService)
+        public LogInMenu(ILabelFactory labelFactory, ICommandFactory commandFactory, ISession session, IUserService userService, IForumReader forumReader)
         {
             this.labelFactory = labelFactory;
             this.commandFactory = commandFactory;
             this.session = session;
             this.userService = userService;
+            this.forumReader = forumReader;
 
             this.Open();
         }
-		
-		private string UsernameInput => this.Buttons[0].Text.TrimStart();
 
-		private string PasswordInput => this.Buttons[1].Text.TrimStart();
+        private string UsernameInput => this.Buttons[0].Text.Trim();
 
-		protected override void InitializeStaticLabels(Position consoleCenter)
+        private string PasswordInput => this.Buttons[1].Text.Trim();
+
+        protected override void InitializeStaticLabels(Position consoleCenter)
         {
             string[] labelContents = new string[] { errorMessage, "Name:", "Password:" };
 
             Position[] labelPositions = new Position[]
             {
-				new Position(consoleCenter.Left - errorMessage.Length / 2, consoleCenter.Top - 13),   // Error: 
+                new Position(consoleCenter.Left - errorMessage.Length / 2, consoleCenter.Top - 13),   // Error: 
                 new Position(consoleCenter.Left - 16, consoleCenter.Top - 10),   // Name:
                 new Position(consoleCenter.Left - 16, consoleCenter.Top - 8),    // Password:
             };
@@ -49,7 +52,7 @@
             }
         }
 
-		protected override void InitializeButtons(Position consoleCenter)
+        protected override void InitializeButtons(Position consoleCenter)
         {
             string[] buttonContents = new string[]
             {
@@ -68,18 +71,41 @@
 
             for (int i = 0; i < this.Buttons.Length; i++)
             {
-				string buttonContent = buttonContents[i];
-				bool isField = string.IsNullOrWhiteSpace(buttonContent);
-				this.Buttons[i] = this.labelFactory.CreateButton(buttonContent, buttonPositions[i], false, isField);
+                string buttonContent = buttonContents[i];
+                bool isField = string.IsNullOrWhiteSpace(buttonContent);
+                this.Buttons[i] = this.labelFactory.CreateButton(buttonContent, buttonPositions[i], false, isField);
             }
         }
 
-		public override IMenu ExecuteCommand()
-		{
-            string commandName = string.Join("", this.CurrentOption.Text.Split());
-            ICommand command = this.commandFactory.CreateCommand(commandName);
+        public override IMenu ExecuteCommand()
+        {
+            if (this.CurrentOption.IsField)
+            {
+                string fieldInput = " " + this.forumReader.ReadLine(this.CurrentOption.Position.Left + 1, this.CurrentOption.Position.Top);
+                this.Buttons[this.currentIndex] = this.labelFactory.CreateButton(fieldInput, this.CurrentOption.Position,
+                    this.CurrentOption.IsHidden, this.CurrentOption.IsField);
 
-            return command.Execute(); 
+                return this;
+            }
+            //else
+            //{
+                try
+                {
+                    string commandName = string.Join("", this.CurrentOption.Text.Split());
+                    ICommand command = this.commandFactory.CreateCommand(commandName);
+                    IMenu view = command.Execute(this.UsernameInput, this.PasswordInput);
+
+                    return view;
+                }
+                catch(Exception e)
+                {
+                    this.error = true;
+                this.errorMessage = e.Message;
+
+                    this.Open();
+                    return this;
+                }
+
         }
-	}
+    }
 }

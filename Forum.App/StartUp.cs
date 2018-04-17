@@ -34,6 +34,7 @@
             services.AddSingleton<ForumData>();
             services.AddTransient<IPostService, PostService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IForumReader, ForumConsoleReader>();
 
             services.AddSingleton<ISession, Session>();
             services.AddSingleton<IForumViewEngine, ForumViewEngine>();

@@ -5,24 +5,29 @@
 	using System.Reflection;
 
 	using Contracts;
+    using Forum.App.Models;
 
-	public class TextAreaFactory : ITextAreaFactory
+    public class TextAreaFactory : ITextAreaFactory
 	{
 		public ITextInputArea CreateTextArea(IForumReader reader, int x, int y, bool isPost = true)
 		{
-			Assembly assembly = Assembly.GetExecutingAssembly();
-			Type commandType = assembly.GetTypes().FirstOrDefault(t => typeof(ITextInputArea).IsAssignableFrom(t));
+            ITextInputArea area = new TextInputArea(reader, x, y, true);
 
-			if (commandType == null)
-			{
-				throw new InvalidOperationException("TextArea not found!");
-			}
+            return area;
 
-			object[] args = new object[] { reader, x, y, isPost};
+            //Assembly assembly = Assembly.GetExecutingAssembly();
+            //Type commandType = assembly.GetTypes().FirstOrDefault(t => typeof(ITextInputArea).IsAssignableFrom(t));
 
-			ITextInputArea commandInstance = (ITextInputArea)Activator.CreateInstance(commandType, args);
+            //if (commandType == null)
+            //{
+            //	throw new InvalidOperationException("TextArea not found!");
+            //}
 
-			return commandInstance;
-		}
+            //object[] args = new object[] { reader, x, y, isPost};
+
+            //ITextInputArea commandInstance = (ITextInputArea)Activator.CreateInstance(commandType, args);
+
+            //return commandInstance;
+        }
 	}
 }

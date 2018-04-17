@@ -6,6 +6,7 @@
     using Forum.Data;
     using Forum.DataModels;
     using Forum.App.Contracts;
+    using System.Linq;
 
     public class UserService : IUserService
     {
@@ -30,12 +31,32 @@
 
         public bool TryLogInUser(string username, string password)
         {
-            throw new NotImplementedException();
+            User user = this.forumData.Users.FirstOrDefault(u => u.Username == username && u.Password == password);
+            if (user == null)
+            {
+                return false;
+            }
+
+            this.session.Reset();
+            this.session.LogIn(user);
+            return true;
         }
 
         public bool TrySignUpUser(string username, string password)
         {
-            throw new NotImplementedException();
+            bool userAlreadyExists = this.forumData.Users.Any(u => u.Username == username);
+            if (userAlreadyExists)
+            {
+                return false;
+            }
+
+            int userId = this.forumData.Users.LastOrDefault()?.Id + 1 ?? 1;
+            User user = new User(userId, username, password);
+            this.forumData.Users.Add(user);
+            this.forumData.SaveChanges();
+
+            this.TryLogInUser(username, password);
+            return true;
         }
     }
 }

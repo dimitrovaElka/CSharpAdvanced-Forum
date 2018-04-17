@@ -8,10 +8,21 @@
 		private ILabelFactory labelFactory;
 		private ITextAreaFactory textAreaFactory;
 		private IForumReader reader;
+        private ICommandFactory commandFactory;
 
 		private bool error;
+        private string errorMessage = "";
 
-		//TODO: Inject Dependencies
+        public AddPostMenu(ILabelFactory labelFactory, ITextAreaFactory textAreaFactory, IForumReader reader, ICommandFactory commandFactory)
+        {
+            this.labelFactory = labelFactory;
+            this.textAreaFactory = textAreaFactory;
+            this.reader = reader;
+            this.commandFactory = commandFactory;
+
+            this.InitializeTextArea();
+            this.Open();
+        }
 
 		private string TitleInput => this.Buttons[0].Text.TrimStart();
 
@@ -78,7 +89,30 @@
 
 		public override IMenu ExecuteCommand()
 		{
-			throw new System.NotImplementedException();
-		}
+            if (this.CurrentOption.IsField)
+            {
+                string fieldInput = " " + this.reader.ReadLine(this.CurrentOption.Position.Left + 1, this.CurrentOption.Position.Top);
+                this.Buttons[this.currentIndex] = this.labelFactory.CreateButton(fieldInput, this.CurrentOption.Position,
+                    this.CurrentOption.IsHidden, this.CurrentOption.IsField);
+
+                return this;
+            }
+
+            try
+            {
+                string commandName = string.Join("", this.CurrentOption.Text.Split());
+                ICommand command = this.commandFactory.CreateCommand(commandName);
+                IMenu view = command.Execute(this.TitleInput, this.CategoryInput, this.TextArea.Text);
+
+                return view;
+            }
+            catch (System.Exception e)
+            {
+                this.error = true;
+                this.errorMessage = e.Message;
+                this.InitializeStaticLabels(Position.ConsoleCenter());
+                return this;
+            }
+        }
 	}
 }

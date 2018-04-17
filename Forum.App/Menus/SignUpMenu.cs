@@ -5,29 +5,33 @@
 
     public class SignUpMenu : Menu
     {
-		private const string DETAILS_ERROR = "Invalid Username or Password!";
-		private const string USERNAME_TAKEN_ERROR = "Username already in use!";
+		//private const string DETAILS_ERROR = "Invalid Username or Password!";
+		//private const string USERNAME_TAKEN_ERROR = "Username already in use!";
 
 		private bool error;
 
 		private ILabelFactory labelFactory;
         private ICommandFactory commandFactory;
+        private IForumReader forumReader;
         private ISession session;
         private IUserService userService;
 
-        public SignUpMenu(ILabelFactory labelFactory, ICommandFactory commandFactory, ISession session, IUserService userService)
+        public SignUpMenu(ILabelFactory labelFactory, ICommandFactory commandFactory,
+            ISession session, IUserService userService,
+            IForumReader forumReader)
         {
             this.labelFactory = labelFactory;
             this.commandFactory = commandFactory;
             this.session = session;
             this.userService = userService;
+            this.forumReader = forumReader;
 
             this.Open();
         }
 
-        private string UsernameInput => this.Buttons[0].Text.TrimStart();
+        private string UsernameInput => this.Buttons[0].Text.Trim();
 
-		private string PasswordInput => this.Buttons[1].Text.TrimStart();
+		private string PasswordInput => this.Buttons[1].Text.Trim();
 
 		private string ErrorMessage { get; set; }
 
@@ -44,11 +48,11 @@
 
 			this.Labels = new ILabel[labelContents.Length];
 
-			this.Labels[0] = new Label(labelContents[0], labelPositions[0], !this.error);
+			this.Labels[0] = this.labelFactory.CreateLabel(labelContents[0], labelPositions[0], !this.error);
 
 			for (int i = 1; i < this.Labels.Length; i++)
 			{
-				this.Labels[i] = new Label(labelContents[i], labelPositions[i]);
+				this.Labels[i] = this.labelFactory.CreateLabel(labelContents[i], labelPositions[i]);
 			}
 		}
 
@@ -79,7 +83,33 @@
 
 		public override IMenu ExecuteCommand()
 		{
-			throw new System.NotImplementedException();
+            if (this.CurrentOption.IsField)
+            {
+                string fieldInput = " " + this.forumReader.ReadLine(this.CurrentOption.Position.Left + 1, this.CurrentOption.Position.Top);
+                this.Buttons[this.currentIndex] = this.labelFactory.CreateButton(fieldInput, this.CurrentOption.Position,
+                    this.CurrentOption.IsHidden, this.CurrentOption.IsField);
+                return this;
+            }
+            else
+            {
+                try
+                {
+                    string commandName = string.Join("", this.CurrentOption.Text.Split());
+                    ICommand command = this.commandFactory.CreateCommand(commandName);
+                    IMenu view = command.Execute(this.UsernameInput, this.PasswordInput);
+
+                    return view;
+                }
+                catch (System.Exception e)
+                {
+                    this.error = true;
+                    this.ErrorMessage = e.Message;
+
+                    this.Open();
+                    return this;
+                }
+                
+            }
 		}
 	}
 }
