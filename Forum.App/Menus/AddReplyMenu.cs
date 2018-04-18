@@ -12,16 +12,29 @@
 		private const int topOffset = 7;
 		private const int buttonOffset = 14;
 
-		private ILabelFactory labelFactory;
+        private ILabelFactory labelFactory;
 		private ITextAreaFactory textAreaFactory;
 		private IForumReader reader;
+        private ICommandFactory commandFactory;
+        private IPostViewModel post;
+        private IPostService postServive;
+        private ISession session;
 
-		private bool error;
-		private IPostViewModel post;
+        private int postId;
+        private bool error;
 
-		//TODO: Inject Dependencies
+        public AddReplyMenu(ILabelFactory labelFactory, ITextAreaFactory textAreaFactory,
+           IForumReader reader, ICommandFactory commandFactory, IPostService postServive, ISession session)
+        {
+            this.labelFactory = labelFactory;
+            this.textAreaFactory = textAreaFactory;
+            this.reader = reader;
+            this.commandFactory = commandFactory;
+            this.postServive = postServive;
+            this.session = session;
+        }
 
-		public ITextInputArea TextArea { get; private set; }
+        public ITextInputArea TextArea { get; private set; }
 
 		protected override void InitializeStaticLabels(Position consoleCenter)
 		{
@@ -77,12 +90,30 @@
 
 		public void SetId(int id)
 		{
-			throw new System.NotImplementedException();
-		}
+            this.postId = id;
+            this.post = this.postServive.GetPostViewModel(id);
+            this.InitializeTextArea();
+            this.Open();
+        }
 
 		public override IMenu ExecuteCommand()
 		{
-			throw new System.NotImplementedException();
-		}
+            try
+            {
+                string commandName = string.Join("", this.CurrentOption.Text.Split());
+                var command = this.commandFactory.CreateCommand(commandName);
+                string postId = this.postId.ToString();
+                string content = this.TextArea.Text.Trim();
+                string userId = this.session.UserId.ToString();
+                var menu = command.Execute(postId, content, userId);
+                return menu;
+            }
+            catch
+            {
+                this.error = true;
+                this.InitializeStaticLabels(Position.ConsoleCenter());
+                return this;
+            }
+        }
 	}
 }

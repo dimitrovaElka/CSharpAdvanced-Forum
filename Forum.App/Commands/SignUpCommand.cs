@@ -19,8 +19,8 @@ namespace Forum.App.Commands
             string username = args[0];
             string password = args[1];
 
-            bool validUsername = !string.IsNullOrWhiteSpace(username) || username.Length < 4;
-            bool validPassword = !string.IsNullOrWhiteSpace(password) || password.Length < 4;
+            bool validUsername = !(string.IsNullOrWhiteSpace(username) || username.Length < 4);
+            bool validPassword = !(string.IsNullOrWhiteSpace(password) || password.Length < 4);
             if (!validUsername || !validPassword)
             {
                 throw new ArgumentException("Invalid username or password!");

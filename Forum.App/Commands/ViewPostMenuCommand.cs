@@ -18,7 +18,7 @@ namespace Forum.App.Commands
         {
             string commandName = this.GetType().Name;
             string menuName = commandName.Substring(0, commandName.Length - "Command".Length);
-            IMenu currentMenu = this.menuFactory.CreateMenu(commandName);
+            IMenu currentMenu = this.menuFactory.CreateMenu(menuName);
 
             if (currentMenu is IIdHoldingMenu idHoldingMenu)
             {

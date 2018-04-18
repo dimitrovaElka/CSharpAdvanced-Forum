@@ -10,6 +10,7 @@
         {
             this.session = session;
         }
+
         public IMenu Execute(params string[] args)
         {
             IMenu currentMenu = this.session.CurrentMenu;

@@ -102,7 +102,7 @@
 		public override IMenu ExecuteCommand()
 		{
             ICommand command = null;
-            int actualIndex = this.currentPage * pageSize + this.currentIndex;
+            int actualIndex = this.currentPage * pageSize + this.currentIndex - 1;
             string idString = null;
 
             if (this.currentIndex > 0 && this.currentIndex <= 10)

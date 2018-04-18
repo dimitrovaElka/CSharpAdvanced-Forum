@@ -1,9 +1,6 @@
 ﻿namespace Forum.App.Factories
 {
-	using System;
-	using System.Linq;
-	using System.Reflection;
-
+	
 	using Contracts;
     using Forum.App.Models;
 

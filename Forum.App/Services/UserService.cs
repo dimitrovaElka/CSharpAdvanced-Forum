@@ -21,12 +21,18 @@
 
         public User GetUserById(int userId)
         {
-            throw new NotImplementedException();
+            var user = this.forumData.Users.FirstOrDefault(x => x.Id == userId);
+            if (user == null)
+            {
+                throw new ArgumentException($"User with Id {userId} not found!");
+            }
+            return user;
         }
 
         public string GetUserName(int userId)
         {
-            throw new NotImplementedException();
+            
+            return this.GetUserById(userId).Username;
         }
 
         public bool TryLogInUser(string username, string password)

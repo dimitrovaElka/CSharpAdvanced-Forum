@@ -21,7 +21,7 @@
             Assembly assembly = Assembly.GetExecutingAssembly();
             Type menuType = assembly.GetTypes()
                 .FirstOrDefault(m => m.Name == menuName);
-//                .FirstOrDefault(m => m.Name == menuName + "Menu");
+  //              .FirstOrDefault(m => m.Name == menuName + "Menu");
             if (menuType == null)
             {
                 throw new InvalidOperationException("Menu not found!");
